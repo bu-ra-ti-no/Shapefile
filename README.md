@@ -6,6 +6,7 @@ Very simple library for working with shape files.
 '============================================
 
 'Работа с существующим файлом:
+
 Dim F As ShapeFile, S As String
 
 If Not IO.File.Exists("Водохранилища.shp") Then Stop
