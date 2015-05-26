@@ -1,6 +1,6 @@
 # ESRI-Shape-file-library
 
-Very simple library for working with ESRI shapefiles.
+Very simple VB.NET library for working with ESRI shapefiles.
 
 Supports reading and writing of all types of shapefiles.
 Does not support the memo fields.
