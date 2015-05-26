@@ -1,5 +1,5 @@
 # ESRI-Shape-file-library
-Very simple library for working with shape files.
+Very simple library for working with ESRI shapefiles.
 
 ```vb.net
 'Библиотека для работы с шейп-файлами.
