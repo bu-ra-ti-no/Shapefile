@@ -4,6 +4,7 @@ Very simple library for working with shape files.
 'Библиотека для работы с шейп-файлами.
 
 '============================================
+
 'Работа с существующим файлом:
 Dim F As ShapeFile, S As String
 
@@ -23,6 +24,7 @@ S += "Значение в поле " & F.Fields(0).ColumnName & ": " & F.Record(
 MsgBox(S)
 
 '============================================
+
 'Создание нового файла:
 
 F = New ShapeFile(SpatialCategories.Point)
