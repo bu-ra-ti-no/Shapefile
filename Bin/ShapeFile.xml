@@ -1,0 +1,227 @@
+﻿<?xml version="1.0"?>
+<doc>
+<assembly>
+<name>
+ShapeFile
+</name>
+</assembly>
+<members>
+<member name="F:ShapeFile.DefaultCodePage">
+	<summary>
+ Code page for new instances.
+ </summary>
+</member><member name="F:ShapeFile.CodePage">
+	<summary>
+ Code page.
+ </summary>
+</member><member name="F:ShapeFile.DefaultProjectionWKT">
+	<summary>
+ WKT projection for new instances.
+ </summary>
+	<example>
+ GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]
+ </example>
+</member><member name="F:ShapeFile.ProjectionWKT">
+	<summary>
+ WKT projection string.
+ </summary>
+	<example>
+ GEOGCS["GCS_WGS_1984",DATUM["D_WGS_1984",SPHEROID["WGS_1984",6378137.0,298.257223563]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]]
+ </example>
+	<remarks>
+ If this parameter is not specified, then .prj-file will not be created.
+ </remarks>
+</member><member name="P:ShapeFile.SpatialCategory">
+	<summary>
+ Геометрическая характеристика объектов.
+ </summary>
+</member><member name="M:ShapeFile.Load(System.String)">
+	<summary>
+ Создаёт новый экземпляр, инициализированный указанным файлом.
+ </summary>
+	<param name="FileName">Путь к файлу.</param>
+</member><member name="M:ShapeFile.Save(System.String)">
+	<summary>
+ Сохранение shape-файла.
+ </summary>
+	<param name="FileName">Имя файла.</param>
+</member><member name="P:ShapeFile.Bookmark">
+	<summary>
+ Указатель на текущую геометрию.
+ </summary>
+</member><member name="M:ShapeFile.AddNew">
+	<summary>
+ Создаёт новую геометрию и добавляет её в конец набора. 
+ Перемещает указатель на добавленную геометрию.
+ </summary>
+</member><member name="M:ShapeFile.Delete">
+	<summary>
+ Удаляет текущую геометрию.
+ </summary>
+	<remarks>
+ Если удаляемая геометрия находится в конце набора, 
+ указатель <see cref="P:ShapeFile.Bookmark"/> уменьшается на единицу.
+ </remarks>
+</member><member name="P:ShapeFile.Geometry">
+	<summary>
+ Текущая геометрия.
+ </summary>
+</member><member name="P:ShapeFile.RecordCount">
+	<summary>
+ Количество геометрий в наборе.
+ </summary>
+	<remarks>
+ Количество записей всегда равно количеству геометрий.
+ </remarks>
+</member><member name="M:ShapeFile.RecordCountFromFile(System.String)">
+	<summary>
+ Счисывает счётчик геометрий из указанного шейп-файла.
+ </summary>
+</member><member name="P:ShapeFile.Fields">
+	<summary>
+ Набор полей семантической таблицы.
+ </summary>
+</member><member name="P:ShapeFile.Record">
+	<summary>
+ Семантическая информация, связанная с текущей геометрией.
+ </summary>
+	<remarks>
+ Если DBF-файл отсутствует, возвращается пустая ссылка.
+ </remarks>
+</member><member name="P:ShapeFile.MBB">
+	<summary>
+ Вычисляет минимальный ограничивающий прямоугольник, занимаемый 
+ геометриями.
+ </summary>
+	<remarks>
+ Если нет ни одной геометрии, границы прямоугольника растянуты 
+ до значений <c>Double.MaxValue</c> и инвертированы.
+ </remarks>
+</member><member name="M:ShapeFile.CreateSHX(System.String)">
+	<summary>
+ Создаёт индексный файл для <paramref name="FileNameSHP"/>.
+ </summary>
+	<returns>
+		<c>True</c> в случае успешного завершения операции, 
+ <c>False</c> в противном случае.
+ </returns>
+	<remarks>
+ Индексный файл можно построить только в том случае, когда
+ шейп-файл имеет стандартныме смещения.
+ </remarks>
+</member><member name="T:ShapeFile">
+	<summary>
+ Класс для работы с шейп-файлами.
+ </summary>
+</member><member name="M:MBB.Reset">
+	<summary>
+ Инициализация структуры.
+ </summary>
+	<remarks>
+ Метод растягивает границы прямоугольника до <c>Double.MaxValue</c> 
+ и инвертирует их.
+ </remarks>
+</member><member name="M:MBB.AddPoint(Point)">
+	<summary>
+ Наращивает габариты прямоугольника, чтобы вместить вершину 
+ геометрии.
+ </summary>
+</member><member name="M:MBB.AddPoints(Point[])">
+	<summary>
+ Наращивает габариты прямоугольника, чтобы вместить точечные 
+ геометрии.
+ </summary>
+</member><member name="M:MBB.AddMBB(MBB)">
+	<summary>
+ Наращивает габариты прямоугольника, чтобы вместить новый 
+ прямоугольник.
+ </summary>
+</member><member name="T:MBB">
+	<summary>
+ Минимальный ограничивающий прямоугольник, занимаемый геометрией.
+ </summary>
+</member><member name="T:Point">
+	<summary>
+ Вершина геометрии.
+ </summary>
+</member><member name="T:Boundary">
+	<summary>
+ Граница геометрии (набор вершин).
+ </summary>
+	<remarks></remarks>
+</member><member name="P:Geometry.PointCount(System.Int32)">
+	<summary>
+ Количество вершин в границе <paramref name="Boundary"/>.
+ </summary>
+	<remarks>
+ Если номер границы не указан, вернёт общее количество вершин во 
+ всех границах.
+ </remarks>
+</member><member name="P:Geometry.MBB">
+	<summary>
+ Минимальный ограничивающий прямоугольник.
+ </summary>
+</member><member name="T:Geometry">
+	<summary>
+ Геометрия.
+ </summary>
+</member><member name="P:Field.Len">
+	<summary>
+ Общая длина, включая десятичную точку.
+ </summary>
+</member><member name="P:Field.Dec">
+	<summary>
+ Длина дробной части.
+ </summary>
+</member><member name="P:Field.FieldType">
+	<summary>
+ Тип поля.
+ </summary>
+</member><member name="T:Field.FieldTypes">
+	<summary>
+ Типы полей.
+ </summary>
+</member><member name="T:Field">
+	<summary>
+ Поле.
+ </summary>
+	<remarks>
+ Наследник класса <see cref="T:System.Data.DataColumn"/>.
+ </remarks>
+</member><member name="T:Record">
+	<summary>
+ Запись, связанная с текущей геометрией.
+ </summary>
+	<remarks>
+ Наследник класса <see cref="T:System.Data.DataRow"/>.
+ </remarks>
+</member><member name="T:Table">
+	<summary>
+ Семантическая таблица.
+ </summary>
+	<remarks>
+ Наследник класса <see cref="T:System.Data.DataTable"/>.
+ </remarks>
+</member><member name="T:FieldCollection">
+	<summary>
+ Коллекция полей семантической таблицы.
+ </summary>
+	<remarks>
+ Наследник класса <see cref="T:System.Collections.IEnumerable"/>.
+ </remarks>
+</member><member name="P:My.Resources.Resources.ResourceManager">
+	<summary>
+  Возвращает кэшированный экземпляр ResourceManager, использованный этим классом.
+</summary>
+</member><member name="P:My.Resources.Resources.Culture">
+	<summary>
+  Перезаписывает свойство CurrentUICulture текущего потока для всех
+  обращений к ресурсу с помощью этого класса ресурса со строгой типизацией.
+</summary>
+</member><member name="T:My.Resources.Resources">
+	<summary>
+  Класс ресурса со строгой типизацией для поиска локализованных строк и т.д.
+</summary>
+</member>
+</members>
+</doc>
