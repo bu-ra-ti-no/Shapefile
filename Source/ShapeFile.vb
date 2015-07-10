@@ -913,7 +913,7 @@ Public Class ShapeFile
                     End With
                     BitConverterEx.SetBytesLittle(Buffer, 36, G.Boundaries.Length)
                     Dim cnt, Pos As Integer
-                    Pos = 44
+                    cnt = 0 : Pos = 44
                     For j = 0 To G.Boundaries.Length - 1
                         BitConverterEx.SetBytesLittle(Buffer, Pos, cnt)
                         Pos += 4
@@ -1038,7 +1038,7 @@ Public Class ShapeFile
                     BitConverterEx.SetBytesLittle(Buffer, 28, MBB.y2)
                     BitConverterEx.SetBytesLittle(Buffer, 36, G.Boundaries.Length)
                     Dim cnt, Pos As Integer
-                    Pos = 44
+                    cnt = 0 : Pos = 44
                     For j = 0 To G.Boundaries.Length - 1
                         BitConverterEx.SetBytesLittle(Buffer, Pos, cnt)
                         Pos += 4
@@ -1083,7 +1083,7 @@ Public Class ShapeFile
                     BitConverterEx.SetBytesLittle(Buffer, 28, MBB.y2)
                     BitConverterEx.SetBytesLittle(Buffer, 36, G.Boundaries.Length)
                     Dim cnt, Pos As Integer
-                    Pos = 44
+                    cnt = 0 : Pos = 44
                     For j = 0 To G.Boundaries.Length - 1
                         BitConverterEx.SetBytesLittle(Buffer, Pos, cnt)
                         Pos += 4
