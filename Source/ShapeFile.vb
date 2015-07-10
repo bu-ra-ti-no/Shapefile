@@ -372,7 +372,7 @@ Public Class ShapeFile
     End Function
 
     Private Shared Function RemoveExtension(ByVal FileName As String) As String
-        Return Path.GetDirectoryName(FileName) & Path.DirectorySeparatorChar & Path.GetFileNameWithoutExtension(FileName)
+        Return FileName.Remove(FileName.Length - Path.GetExtension(FileName).Length)
     End Function
 
     Private Function LoadRecords(ByVal s As FileStream) As Boolean
@@ -555,7 +555,7 @@ Public Class ShapeFile
                 Case SpatialCategories.MultiPoint
                     G.CreateBoundaries(1)
                     Dim NumPoints = BitConverterEx.GetInt32Little(Buffer, 36)
-                    G.Boundaries(0).CreatePoints(BitConverterEx.GetInt32Little(Buffer, 36))
+                    G.Boundaries(0).CreatePoints(NumPoints)
                     For j = 0 To NumPoints - 1
                         G.Boundaries(0).Points(j).X = BitConverterEx.GetDoubleLittle(Buffer, 40 + j * 16)
                         G.Boundaries(0).Points(j).Y = BitConverterEx.GetDoubleLittle(Buffer, 48 + j * 16)
@@ -872,9 +872,9 @@ Public Class ShapeFile
                 Case SpatialCategories.MultiPointZ
                     L = 72 + G.PointCount(0) * 32
                 Case SpatialCategories.PolyLineZ, SpatialCategories.PolygonZ
-                    L = 72 + G.Boundaries.Length * 4 + G.PointCount(-1) * 32
+                    L = 76 + G.Boundaries.Length * 4 + G.PointCount(-1) * 32
                 Case SpatialCategories.MultiPatch
-                    L = 72 + G.Boundaries.Length * 8 + G.PointCount(-1) * 32
+                    L = 76 + G.Boundaries.Length * 8 + G.PointCount(-1) * 32
             End Select
             BitConverterEx.SetBytesBig(sp, L >> 1)
             '===================================================================
