@@ -347,28 +347,34 @@ Public Class ShapeFile
     ''' </remarks>
     Private Shared Function CreateSHX(ByVal FileNameSHP As String) As Boolean
         Dim FileNameSHX = RemoveExtension(FileNameSHP) & ".shx"
-        Dim b(99) As Byte
-        Using sp As New FileStream(FileNameSHP, FileMode.Open, FileAccess.Read, FileShare.Read), _
-              sx As New FileStream(FileNameSHX, FileMode.Create, FileAccess.Write)
-            sp.Read(b, 0, 100)
-            sx.Write(b, 0, 100)
-            Dim MaxPos = BitConverterEx.GetInt32Big(b, 24)
-            MaxPos += MaxPos - 1
-            Dim Pos = 104, Shift = 50, rc = 0
-            Do While Pos < MaxPos
-                rc += 1
-                sp.Seek(Pos, SeekOrigin.Begin)
-                Dim L = BitConverterEx.GetInt32Big(sp)
-                BitConverterEx.SetBytesBig(sx, Shift)
-                BitConverterEx.SetBytesBig(sx, L)
-                Pos += 8 + L + L
-                Shift += 4 + L
-            Loop
-            sx.Seek(24, SeekOrigin.Begin)
-            BitConverterEx.SetBytesBig(sx, 50 + rc * 4)
-            sp.Close()
-            sx.Close()
-        End Using
+        Try
+            Dim b(99) As Byte
+            Using sp As New FileStream(FileNameSHP, FileMode.Open, FileAccess.Read, FileShare.Read), _
+                  sx As New FileStream(FileNameSHX, FileMode.Create, FileAccess.Write)
+                sp.Read(b, 0, 100)
+                sx.Write(b, 0, 100)
+                Dim MaxPos = BitConverterEx.GetInt32Big(b, 24)
+                If MaxPos < 100 OrElse MaxPos > sp.Length Then Throw New Exception
+                MaxPos += MaxPos - 1
+                Dim Pos = 104, Shift = 50, rc = 0
+                Do While Pos < MaxPos
+                    rc += 1
+                    sp.Seek(Pos, SeekOrigin.Begin)
+                    Dim L = BitConverterEx.GetInt32Big(sp)
+                    BitConverterEx.SetBytesBig(sx, Shift)
+                    BitConverterEx.SetBytesBig(sx, L)
+                    Pos += 8 + L + L
+                    Shift += 4 + L
+                Loop
+                sx.Seek(24, SeekOrigin.Begin)
+                BitConverterEx.SetBytesBig(sx, 50 + rc * 4)
+                sp.Close()
+                sx.Close()
+            End Using
+        Catch ex As Exception
+            Return False
+        End Try
+        Return True
     End Function
 
     Private Shared Function RemoveExtension(ByVal FileName As String) As String
@@ -1824,7 +1830,7 @@ Public Class FieldCollection : Implements IEnumerable(Of Field)
         _Columns = Columns
     End Sub
     Public Function Add(ByVal Name As String, ByVal Type As Field.FieldTypes, Optional ByVal Len As Integer = 0, Optional ByVal Dec As Integer = 0) As Field
-        If Count > 127 Then
+        If Count > 254 Then
             Throw New InvalidOperationException("Field limit reached")
         End If
         Dim F = New Field(Name, Type, Len, Dec)
@@ -1832,7 +1838,7 @@ Public Class FieldCollection : Implements IEnumerable(Of Field)
         Return F
     End Function
     Public Sub Add(ByVal Field As Field)
-        If Count > 127 Then
+        If Count > 254 Then
             Throw New InvalidOperationException("Field limit reached")
         End If
         _Columns.Add(Field)
