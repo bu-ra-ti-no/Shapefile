@@ -33,17 +33,15 @@ MsgBox(S)
 
 'Создание нового файла:
 
-F = New ShapeFile(SpatialCategories.Point)
+F = New ShapeFile(SpatialCategories.PolyLine)
 F.CodePage = CodePages.Russian_Windows
 F.Fields.Add("Поле1", Field.FieldTypes.String)
 
 F.AddNew()
 
-ReDim F.Geometry.Boundaries(0)
-F.Geometry.Boundaries(0) = New Boundary
-ReDim F.Geometry.Boundaries(0).Points(0)
-F.Geometry.Boundaries(0).Points(0) = New Point(10, 20)
-F.Record.Item(0) = "Точечный объект"
+F.Geometry.Boundaries = New Boundary() {New Boundary}
+F.Geometry.Boundaries(0).Points = New Point() {New Point(10, 20), New Point(20, 20)}
+F.Record.Item(0) = "Линейный объект"
 
 F.Save("Новый.shp")
 ```
