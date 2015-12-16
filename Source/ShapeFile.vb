@@ -75,6 +75,38 @@ Public Class ShapeFile
         MultiPatch = 31
     End Enum
 
+    Public Class WarningEventArgs : Inherits EventArgs
+        Private _Field As Field
+        Public ReadOnly Property Field() As Field
+            Get
+                Return _Field
+            End Get
+        End Property
+
+        Private _Row As DataRow
+        Public ReadOnly Property Row() As DataRow
+            Get
+                Return _Row
+            End Get
+        End Property
+
+        Public Property Value() As String
+            Get
+                Return DirectCast(Row(Field), String)
+            End Get
+            Set(ByVal value As String)
+                Row(Field) = value
+            End Set
+        End Property
+
+        Friend Sub New(ByVal Row As DataRow, ByVal Field As Field)
+            _Row = Row
+            _Field = Field
+        End Sub
+    End Class
+
+    Event Warning As EventHandler(Of WarningEventArgs)
+
     Private _SpatialCategory As SpatialCategories
     ''' <summary>
     ''' Геометрическая характеристика объектов.
@@ -140,13 +172,14 @@ Public Class ShapeFile
         sp = New FileStream(FileNameSHP, FileMode.Open, FileAccess.Read, FileShare.Read), _
         sx = New FileStream(FileNameSHX, FileMode.Open, FileAccess.Read, FileShare.Read)
             Dim sprj As FileStream = Nothing
-            If File.Exists(FileNamePRJ) Then
-                sprj = New FileStream(FileNamePRJ, FileMode.Open, FileAccess.Read, FileShare.Read)
-            End If
-            If Not Ret.LoadGeometries(sp, sx, sprj) Then Return Nothing
-            sp.Close()
-            sx.Close()
-            If sprj IsNot Nothing Then sprj.Close()
+            Try
+                If File.Exists(FileNamePRJ) Then
+                    sprj = New FileStream(FileNamePRJ, FileMode.Open, FileAccess.Read, FileShare.Read)
+                End If
+                If Not Ret.LoadGeometries(sp, sx, sprj) Then Return Nothing
+            Finally
+                If sprj IsNot Nothing Then sprj.Dispose()
+            End Try
         End Using
 
         Return Ret
@@ -165,17 +198,40 @@ Public Class ShapeFile
         FileNameDBF = RemoveExtension(FileName) & ".dbf"
         FileNamePRJ = RemoveExtension(FileName) & ".prj"
 
+        If Fields IsNot Nothing Then
+            Dim Rows = Table.Rows
+            For f = 0 To Fields.Count - 1
+                Dim Field = Fields(f)
+                If Field.FieldType <> Global.Field.FieldTypes.String Then Continue For
+                For i = 0 To RecordCount - 1
+                    Dim Row = Rows(i)
+                    If Row.IsNull(f) Then Continue For
+                    If DirectCast(Row(f), String).Length > Field.Len Then
+                        Dim e = New WarningEventArgs(Row, Field)
+                        RaiseEvent Warning(Me, e)
+                        If e.Value.Length > Field.Len Then
+                            Row(f) = e.Value.Substring(0, Field.Len)
+                        End If
+                    End If
+                Next
+            Next
+            If Fields.Len > 4000 Then
+                Throw New InvalidOperationException("Total Record Length must be no longer than 4000 bytes")
+            End If
+        End If
+
         Using _
         sp = New FileStream(FileNameSHP, FileMode.Create, FileAccess.Write), _
         sx = New FileStream(FileNameSHX, FileMode.Create, FileAccess.Write)
             Dim sprj As FileStream = Nothing
-            If ProjectionWKT.Length > 0 Then
-                sprj = New FileStream(FileNamePRJ, FileMode.Create, FileAccess.Write)
-            End If
-            If Not SaveGeometries(sp, sx, sprj) Then Return False
-            sp.Close()
-            sx.Close()
-            If sprj IsNot Nothing Then sprj.Close()
+            Try
+                If ProjectionWKT.Length > 0 Then
+                    sprj = New FileStream(FileNamePRJ, FileMode.Create, FileAccess.Write)
+                End If
+                If Not SaveGeometries(sp, sx, sprj) Then Return False
+            Finally
+                If sprj IsNot Nothing Then sprj.Dispose()
+            End Try
         End Using
 
         If Table IsNot Nothing Then
@@ -767,7 +823,7 @@ Public Class ShapeFile
                 Case Field.FieldTypes.String
                     b(11) = 67
                 Case Field.FieldTypes.Date
-                    b(11) = 70
+                    b(11) = 68
                 Case Field.FieldTypes.Logical
                     b(11) = 76
                 Case Else
@@ -834,6 +890,7 @@ Public Class ShapeFile
         Next
         s.WriteByte(&H1A) 'EOF
         s.Flush()
+        Return True
     End Function
 
     Private Function SaveGeometries(ByVal sp As FileStream, ByVal sx As FileStream, ByVal sprj As FileStream) As Boolean
@@ -1829,6 +1886,29 @@ Public Class FieldCollection : Implements IEnumerable(Of Field)
     Friend Sub New(ByVal Columns As DataColumnCollection)
         _Columns = Columns
     End Sub
+    Public Function Add(ByVal Name As String, ByVal Type As Type, Optional ByVal Len As Integer = 0, Optional ByVal Dec As Integer = 0) As Field
+        If Count > 254 Then
+            Throw New InvalidOperationException("Field limit reached")
+        End If
+        Dim FieldType As Field.FieldTypes
+        Select Case Type.GUID
+            Case GetType(String).GUID, GetType(Char).GUID
+                FieldType = Field.FieldTypes.String
+            Case GetType(Integer).GUID, GetType(Long).GUID, GetType(Short).GUID, GetType(Byte).GUID
+                FieldType = Field.FieldTypes.Numeric
+            Case GetType(Double).GUID, GetType(Single).GUID
+                FieldType = Field.FieldTypes.Float
+            Case GetType(Date).GUID
+                FieldType = Field.FieldTypes.Date
+            Case GetType(Boolean).GUID
+                FieldType = Field.FieldTypes.Logical
+            Case Else
+                FieldType = Field.FieldTypes.Memo
+        End Select
+        Dim F = New Field(Name, FieldType, Len, Dec)
+        _Columns.Add(F)
+        Return F
+    End Function
     Public Function Add(ByVal Name As String, ByVal Type As Field.FieldTypes, Optional ByVal Len As Integer = 0, Optional ByVal Dec As Integer = 0) As Field
         If Count > 254 Then
             Throw New InvalidOperationException("Field limit reached")
@@ -1864,6 +1944,15 @@ Public Class FieldCollection : Implements IEnumerable(Of Field)
     Public ReadOnly Property Count() As Integer
         Get
             Return _Columns.Count
+        End Get
+    End Property
+    Public ReadOnly Property Len() As Integer
+        Get
+            Dim l As Integer
+            For Each Field As Field In Me
+                l += Field.Len
+            Next
+            Return l
         End Get
     End Property
 
