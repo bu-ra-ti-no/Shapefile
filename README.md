@@ -1,4 +1,4 @@
-# ESRI-Shape-file-library
+# ESRI Shapefile library
 
 Very simple VB.NET library for working with ESRI shapefiles.
 
