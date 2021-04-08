@@ -1,6 +1,7 @@
 # ESRI Shapefile library
 
 ![GitHub repo size](https://img.shields.io/github/repo-size/bu-ra-ti-no/Shapefile?style=plastic)
+![GitHub top language](https://img.shields.io/github/languages/top/bu-ra-ti-no/Shapefile)
 
 Very simple VB.NET library for working with ESRI shapefiles.
 
